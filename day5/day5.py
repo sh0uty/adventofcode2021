@@ -13,7 +13,7 @@ def part_a():
         x1, y1 = coordinate_pair[0]
         x2, y2 = coordinate_pair[1]
         
-        # Now calculate the points between the two points with the distance
+        # Now calculate the points between the two points
         if x1 == x2:
             for y in range(min(y1, y2), max(y1, y2) + 1):
                 all_lines.append((x1, y))
@@ -28,7 +28,7 @@ def part_a():
                     if abs(x - x1) == abs(y - y1):
                         all_lines.append((x, y))
 
-        
+    # Count all interactions between the lines
     print(len([ x for x in list(Counter(all_lines).values()) if x > 1]))
 
 part_a()
