@@ -1,6 +1,6 @@
 from functools import reduce
 
-with open("test_input", "r") as f:
+with open("input", "r") as f:
     lines = f.readlines()
 
 def find(patterns, predicate):
@@ -24,9 +24,7 @@ def solve():
         #for val in solved.values():
         #    for out in output:
         #        if val == out:
-        #            total += 1
-            
-
+        #            total += 1  
 
         unknown069 = [digit for digit in patterns if len(digit) == 6]
         solved[6] = find(unknown069, lambda digit: len(digit & solved[1]) == 1)
@@ -36,10 +34,9 @@ def solve():
         unknown235 = [digit for digit in patterns if len(digit) == 5]
         solved[3] = find(unknown235, lambda digit: len(digit & solved[1]) == 2)
         solved[5] = find(unknown235, lambda digit: len(digit & solved[6]) == 5)
-        solved[2] = solved[2] = find(unknown235, lambda digit: digit != solved[3] and digit != solved[5])
+        solved[2] = find(unknown235, lambda digit: digit != solved[3] and digit != solved[5])
 
-        total += reduce(lambda ans, digit: 10 * ans + list(solved.values()).index(digit), output, 0)
-        
+        total += reduce(lambda ans, digit: 10 * ans + list(dict(sorted(solved.items())).values()).index(digit), output, 0)
     return total
 
 print(solve())
