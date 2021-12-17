@@ -21,48 +21,51 @@ Last three zeros are ignored because of hexadecimal padding
 Thus the literal value in the packet is 011111100101 = 2021 in decimal
 """
 
-pyint = int
-
-def int(x, y = 10):
-    return pyint(''.join(x), y)
-
 with open('test_input', 'r') as f:
     data = f.readline()
 
 stream = list(''.join(bin(int(b, 16))[2:].zfill(4) for b in data.strip()))
 
-def parse_packet_stream(packet):
-    version = int(packet[:3], 2)
-    packet = packet[3:]
+def to_int(x, y = 10):
+    return int(''.join(x),y)
 
-    typeid = int(packet[:3], 2)
-    packet = packet[3:]
+def parse_packet(packet):
+    version = to_int(packet[:3], 2)
+    packet[:] = packet[3:]
+
+    typeid = to_int(packet[:3], 2)
+    packet[:] = packet[3:]
 
     if typeid == 4:
-        data = []
+        number = []
         while True:
             prefix = packet.pop(0)
-            data += packet[:4]
-            packet = packet[4:]
+            number += packet[:4]
+            packet[:] = packet[4:]
             if prefix == '0':
-                break
-        data = int(data, 2)
-        return (data, version, typeid)
+                return version, typeid, to_int(number, 2)
     else:
         packets = []
-        if packet.pop(0) == '0':
-            length = int(packet[:15], 2)
-            packet = packet[15:]
-            sub = packet[:length]
-            packet = packet[length:]
-            packets.append(parse_packet_stream(sub))
+        length_type_id = packet.pop(0)
+        if length_type_id == '0':
+            length = to_int(packet[:15], 2)
+            packet[:] = packet[15:]
+            sub_packet = packet[:length]
+            packet[:] = packet[length:]
+            while sub_packet:
+                packets.append(parse_packet(sub_packet))
         else:
-            amount_packets = int(packet[:11], 2)
-            packet = packet[11:]
-            print(amount_packets)
-            for _ in range(amount_packets):
-                packets.append(parse_packet_stream(packet))
-        return (version, typeid, packets)
+            number_of_sub_packets = to_int(packet[:11], 2)
+            packet[:] = packet[11:]
+            for _ in range(number_of_sub_packets):
+                packets.append(parse_packet(packet))
+        return version, typeid, packets
 
-a = parse_packet_stream(stream)
-print(a)
+def versionsum(packets):
+    version = packets[0]
+    if packets[1] == 4:
+        return version
+    else:
+        return version + sum(versionsum(packet) for packet in packets[2])
+
+print(versionsum(parse_packet(stream)))
