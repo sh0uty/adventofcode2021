@@ -21,6 +21,9 @@ Last three zeros are ignored because of hexadecimal padding
 Thus the literal value in the packet is 011111100101 = 2021 in decimal
 """
 
+from typing import Match
+from functools import reduce
+
 with open('test_input', 'r') as f:
     data = f.readline()
 
@@ -68,4 +71,35 @@ def versionsum(packets):
     else:
         return version + sum(versionsum(packet) for packet in packets[2])
 
-print(versionsum(parse_packet(stream)))
+
+def interpret_packet(packets):
+    version = packets[0]
+    typeid = packets[1]
+    data = packets[2]
+    if typeid == 4:
+        return data
+    elif typeid == 0:
+        return sum(interpret_packet(packet) for packet in data)
+    elif typeid == 1:
+        return reduce(lambda x, y: x*y, [interpret_packet(packet) for packet in data], 1)
+    elif typeid == 2:
+        return min(interpret_packet(packet) for packet in data)
+    elif typeid == 3:
+        return max(interpret_packet(packet) for packet in data)
+    elif typeid == 5:
+        # ! Sub-Packets not working
+        return 1 if data[0][2] > data[1][2] else 0
+    elif typeid == 6:
+        # ! Sub-Packets not working
+        return 1 if data[0][2] < data[1][2] else 0
+    elif typeid == 7:
+        # ! Sub-Packets not working
+        return 1 if data[0][2] == data[1][2] else 0
+
+#packet = parse_packet(stream)
+#print(packet)
+#print(versionsum(packet))
+
+packet = parse_packet(stream)
+print(packet)
+print(interpret_packet(packet))
