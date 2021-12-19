@@ -24,7 +24,7 @@ Thus the literal value in the packet is 011111100101 = 2021 in decimal
 from typing import Match
 from functools import reduce
 
-with open('test_input', 'r') as f:
+with open('input', 'r') as f:
     data = f.readline()
 
 stream = list(''.join(bin(int(b, 16))[2:].zfill(4) for b in data.strip()))
@@ -88,13 +88,13 @@ def interpret_packet(packets):
         return max(interpret_packet(packet) for packet in data)
     elif typeid == 5:
         # ! Sub-Packets not working
-        return 1 if data[0][2] > data[1][2] else 0
+        return 1 if interpret_packet(data[0]) > interpret_packet(data[1]) else 0
     elif typeid == 6:
         # ! Sub-Packets not working
-        return 1 if data[0][2] < data[1][2] else 0
+        return 1 if interpret_packet(data[0]) < interpret_packet(data[1]) else 0
     elif typeid == 7:
         # ! Sub-Packets not working
-        return 1 if data[0][2] == data[1][2] else 0
+        return 1 if interpret_packet(data[0]) == interpret_packet(data[1]) else 0
 
 #packet = parse_packet(stream)
 #print(packet)
